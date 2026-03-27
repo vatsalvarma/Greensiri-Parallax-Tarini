@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenSiri Tarini - Farmhouses Slider</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-logo-top {
+            font-size: 26px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .nav-logo-bottom {
+            display: flex;
+            align-items: center;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .nav-logo-bottom::before,
+        .nav-logo-bottom::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: white;
+        }
+
+        .nav-logo-bottom span {
+            padding: 0 8px;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #7fcf8e;
+        }
+
+        /* Multi-Layer Slider Architecture */
+        #slider-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
+
+        /* ──────── BG LAYER (z: 1) ──────── */
+        #layer-bg { z-index: 1; }
+        .bg-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transform: translateX(100%);
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .bg-slide.active {
+            transform: translateX(0);
+        }
+        .bg-slide.prev {
+            transform: translateX(-100%);
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.1s; /* Slight delay exiting */
+        }
+
+        .bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.4) 100%);
+        }
+
+        /* ──────── TEXT LAYER (z: 2) ──────── */
+        #layer-text { z-index: 2; }
+        .text-slide {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(150vw, -50%); /* Start far right */
+            width: 100%;
+            text-align: center;
+            transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s; /* Slow, delayed entry */
+            opacity: 0;
+        }
+        .text-slide.active {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+        }
+        /* When exiting, standard exit to the left but also slightly delayed */
+        .text-slide.prev {
+            transform: translate(-150vw, -50%);
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.6s, opacity 1.2s 0.6s;
+            opacity: 0;
+        }
+
+        .hero-title {
+            font-size: 160px;
+            font-weight: 800;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-title .filled {
+            color: #fff;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .hero-title .outlined {
+            color: transparent;
+            -webkit-text-stroke: 2px #fff;
+            margin-top: -20px;
+            margin-left: 200px; /* Offset the outlined text slightly */
+        }
+
+        /* ──────── PNG LAYER (z: 3) ──────── */
+        #layer-png { z-index: 3; }
+        .png-slide {
+            position: absolute;
+            bottom: -10%;
+            left: 35%;
+            transform: translateX(100vw) scale(0.9);
+            height: 80vh;
+            max-width: 100vw;
+            object-fit: contain;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .png-slide.active {
+            transform: translateX(-50%) scale(1);
+        }
+        .png-slide.prev {
+            transform: translateX(-150vw) scale(0.9);
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        /* ──────── UI LAYER (z: 4) ──────── */
+        #layer-ui { z-index: 4; pointer-events: auto; }
+
+        .ui-slide {
+            position: absolute;
+            inset: 0;
+            pointer-events: none; /* Let clicks pass to the active one */
+        }
+
+        .ui-slide.active {
+            pointer-events: auto;
+        }
+
+        /* Bottom Left Text & Controls */
+        .bottom-left-panel {
+            position: absolute;
+            bottom: 60px;
+            left: 60px;
+            transform: translateX(100vw);
+            transition: transform 1s cubic-bezier(0.77, 0, 0.175, 1) 0.4s;
+            opacity: 0;
+        }
+
+        .ui-slide.active .bottom-left-panel {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .ui-slide.prev .bottom-left-panel {
+            transform: translateX(-100vw);
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            opacity: 0;
+        }
+
+        .crafted-text {
+            font-size: 52px;
+            font-weight: 400;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .slider-controls {
+            display: flex;
+            gap: 20px;
+        }
+
+        .arrow-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            opacity: 0.8;
+            transition: all 0.3s;
+        }
+
+        .arrow-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .arrow-btn svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Glassmorphism Right Cards */
+        .right-panel {
+            position: absolute;
+            top: 50%;
+            right: 60px;
+            transform: translateY(-50%) translateX(100vw);
+            width: 400px;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.2s;
+            opacity: 0;
+        }
+
+        .ui-slide.active .right-panel {
+            transform: translateY(-50%) translateX(0);
+            opacity: 1;
+        }
+
+        .ui-slide.prev .right-panel {
+            transform: translateY(-50%) translateX(-100vw);
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            opacity: 0;
+        }
+
+        .glass-title {
+            text-align: center;
+            padding: 15px;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .adv-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .adv-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 15px 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .adv-item h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .adv-item p {
+            font-size: 10px;
+            font-weight: 300;
+            line-height: 1.5;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+        }
+
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="#" class="nav-logo">
+        <div class="nav-logo-top">Greensirí Tariní</div>
+        <div class="nav-logo-bottom"><span>Farms & Resorts</span></div>
+    </a>
+    <ul>
+        <li><a href="#">HOME</a></li>
+        <li><a href="#">FARMHOUSE</a></li>
+        <li><a href="#">RESORT</a></li>
+        <li><a href="#">LAYOUT</a></li>
+        <li><a href="#">LOCATION</a></li>
+        <li><a href="#">INVESTMENT</a></li>
+        <li><a href="#">GALLERY</a></li>
+        <li><a href="#">CONTACT</a></li>
+    </ul>
+</nav>
+
+<div id="slider-container">
+    <div id="layer-bg" class="layer"></div>
+    <div id="layer-text" class="layer"></div>
+    <div id="layer-png" class="layer"></div>
+    <div id="layer-ui" class="layer"></div>
+</div>
+
+<script>
+    const slidesData = [
+        {
+            bg: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/bagcapsule.png",
+            png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/image%202.png",
+            heroText1: "CAPSULE",
+            heroText2: "STAY",
+            title: "ADVANTAGES",
+            subtitle: "FARMHOUSES<br>CRAFTED FOR YOU",
+            cards: [
+                { title: "BUDGET FRIENDLY STAY", desc: "AFFORDABLE ALTERNATIVE TO HOTELS WITHOUT COMPROMISING BASIC COMFORT." },
+                { title: "COMPACT PRIVATE SPACE", desc: "PERSONAL SLEEPING POD THAT OFFERS PRIVACY IN A SMALL FOOTPRINT." },
+                { title: "PRIME LOCATION ACCESS", desc: "USUALLY LOCATED NEAR TRANSIT HUBS AND CITY HOTSPOTS." },
+                { title: "SAFE SECURE PODS", desc: "INDIVIDUAL CAPSULES WITH LOCKERS AND CONTROLLED ENTRY FOR SAFETY." }
+            ]
+        },
+        {
+            bg: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/dome1bg.png",
+            png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/dpnnn.png",
+            heroText1: "DOME",
+            heroText2: "STAY",
+            title: "ADVANTAGES",
+            subtitle: "FARMHOUSES<br>CRAFTED FOR YOU",
+            cards: [
+                { title: "FUTURSTIC", desc: "THE DOME DESIGN GIVES A MODERN, UNIQUE LOOK THAT ENHANCES VISUAL APPEAL AND ATTRACTS ATTENTION." },
+                { title: "FASTER SETUP", desc: "PREFABRICATED DOME STRUCTURES CAN BE ASSEMBLED QUICKLY WITH MINIMAL CONSTRUCTION TIME." },
+                { title: "LOWER STRUCTURAL COST", desc: "THE CURVED SHAPE USES FEWER MATERIALS WHILE MAINTAINING STRENGTH, REDUCING OVERALL BUILDING COST." },
+                { title: "MAINTAIN INTERNAL TEMPERATURE", desc: "THE DOME SHAPE ALLOWS BETTER AIR CIRCULATION AND INSULATION, KEEPING INTERIORS NATURALLY COOLER OR WARMER." }
+            ]
+        },
+        {
+            bg: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?q=80&w=2000",
+            png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/image%202.png", // reusing png
+            heroText1: "TENT",
+            heroText2: "STAY",
+            title: "ADVANTAGES",
+            subtitle: "FARMHOUSES<br>CRAFTED FOR YOU",
+            cards: [
+                { title: "NATURE IMMERSION", desc: "EXPERIENCE THE GREAT OUTDOORS WITHOUT SACRIFICING LUXURY AND COMFORT." },
+                { title: "ECO-FRIENDLY", desc: "MINIMAL ENVIRONMENTAL IMPACT WITH SUSTAINABLE MATERIALS AND OFF-GRID CAPABILITIES." },
+                { title: "QUICK DEPLOYMENT", desc: "CAN BE SET UP IN A FRACTION OF THE TIME NEEDED FOR TRADITIONAL BUILDINGS." },
+                { title: "VERSATILE LOCATIONS", desc: "PERFECT FOR REMOTE AND SCENIC LOCATIONS WHERE TRADITIONAL CONSTRUCTION IS DIFFICULT." }
+            ]
+        },
+        {
+            bg: "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?q=80&w=2000",
+            png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/dpnnn.png", // reusing png
+            heroText1: "CABIN",
+            heroText2: "STAY",
+            title: "ADVANTAGES",
+            subtitle: "FARMHOUSES<br>CRAFTED FOR YOU",
+            cards: [
+                { title: "RUSTIC CHARM", desc: "CLASSIC WOODEN AESTHETICS THAT BLEND PERFECTLY WITH FOREST SURROUNDINGS." },
+                { title: "ALL-WEATHER DURABILITY", desc: "BUILT TO WITHSTAND HARSH CONDITIONS WHILE KEEPING THE INTERIOR COZY." },
+                { title: "SPACIOUS INTERIORS", desc: "MULTIPLE ROOMS AND LOFTS PROVIDE AMPLE LIVING SPACE FOR FAMILIES." },
+                { title: "LONG-TERM VALUE", desc: "A DURABLE INVESTMENT THAT APPRECIATES IN VALUE OVER TIME." }
+            ]
+        },
+        {
+            bg: "https://images.unsplash.com/photo-1505852903341-fc8d3db01e12?q=80&w=2000",
+            png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/image%202.png",
+            heroText1: "VILLA",
+            heroText2: "STAY",
+            title: "ADVANTAGES",
+            subtitle: "FARMHOUSES<br>CRAFTED FOR YOU",
+            cards: [
+                { title: "PREMIUM LUXURY", desc: "HIGH-END FINISHES AND AMENITIES FOR THE ULTIMATE RELAXATION EXPERIENCE." },
+                { title: "PRIVATE POOLS", desc: "ENJOY YOUR OWN EXCLUSIVE SWIMMING RESORT IN COMPLETE PRIVACY." },
+                { title: "EXPANSIVE VIEWS", desc: "LARGE GLASS PANELS OFFERING UNINTERRUPTED VIEWS OF THE SURROUNDINGS." },
+                { title: "SMART HOME TECH", desc: "INTEGRATED SYSTEMS FOR CLIMATE, LIGHTING, AND ENTERTAINMENT CONTROL." }
+            ]
+        },
+        {
+            bg: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2000",
+            png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/dpnnn.png",
+            heroText1: "LODGE",
+            heroText2: "STAY",
+            title: "ADVANTAGES",
+            subtitle: "FARMHOUSES<br>CRAFTED FOR YOU",
+            cards: [
+                { title: "COMMUNITY FEEL", desc: "DESIGNED FOR GROUP GATHERINGS WITH LARGE SHARED SPACES AND KITCHENS." },
+                { title: "AUTHENTIC DESIGN", desc: "TRADITIONAL CRAFTSMANSHIP MEETING CONTEMPORARY REQUIREMENTS." },
+                { title: "NATURE TRAILS", desc: "DIRECT ACCESS TO HIKING PATHS AND OUTDOOR RECREATION AREAS." },
+                { title: "YEAR-ROUND APPEAL", desc: "PERFECT FOR BOTH SUMMER RETREATS AND WINTER SKI VACATIONS." }
+            ]
+        }
+    ];
+
+    const layerBg = document.getElementById('layer-bg');
+    const layerText = document.getElementById('layer-text');
+    const layerPng = document.getElementById('layer-png');
+    const layerUi = document.getElementById('layer-ui');
+
+    function initSlider() {
+        slidesData.forEach((slide, i) => {
+            // BG
+            const bgDiv = document.createElement('div');
+            bgDiv.className = `bg-slide ${i === 0 ? 'active' : ''}`;
+            bgDiv.style.backgroundImage = `url(${slide.bg})`;
+            const overlay = document.createElement('div');
+            overlay.className = 'bg-overlay';
+            bgDiv.appendChild(overlay);
+            layerBg.appendChild(bgDiv);
+
+            // TEXT
+            const textDiv = document.createElement('div');
+            textDiv.className = `text-slide ${i === 0 ? 'active' : ''}`;
+            textDiv.innerHTML = `
+                <div class="hero-title">
+                    <span class="filled">${slide.heroText1}</span>
+                    <span class="outlined">${slide.heroText2}</span>
+                </div>
+            `;
+            layerText.appendChild(textDiv);
+
+            // PNG
+            const pngImg = document.createElement('img');
+            pngImg.className = `png-slide ${i === 0 ? 'active' : ''}`;
+            pngImg.src = slide.png;
+            pngImg.alt = slide.heroText1;
+            layerPng.appendChild(pngImg);
+
+            // UI
+            let cardsHtml = '';
+            slide.cards.forEach(card => {
+                cardsHtml += `
+                    <div class="adv-item">
+                        <h4>${card.title}</h4>
+                        <p>${card.title} — ${card.desc}</p>
+                    </div>
+                `;
+            });
+
+            const uiDiv = document.createElement('div');
+            uiDiv.className = `ui-slide ${i === 0 ? 'active' : ''}`;
+            uiDiv.innerHTML = `
+                <div class="bottom-left-panel">
+                    <div class="crafted-text">${slide.subtitle}</div>
+                    <div class="slider-controls">
+                        <button class="arrow-btn prev-btn">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        </button>
+                        <button class="arrow-btn next-btn">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="right-panel">
+                    <div class="glass-title">${slide.title}</div>
+                    <div class="adv-list">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
+            layerUi.appendChild(uiDiv);
+        });
+
+        bindControls();
+    }
+
+    let currIndex = 0;
+    let isAnimating = false;
+
+    function goToSlide(nextIndex) {
+        if (isAnimating || nextIndex === currIndex) return;
+        isAnimating = true;
+
+        const bgSlides = document.querySelectorAll('.bg-slide');
+        const textSlides = document.querySelectorAll('.text-slide');
+        const pngSlides = document.querySelectorAll('.png-slide');
+        const uiSlides = document.querySelectorAll('.ui-slide');
+
+        // Set current as prev (exiting)
+        bgSlides[currIndex].classList.replace('active', 'prev');
+        textSlides[currIndex].classList.replace('active', 'prev');
+        pngSlides[currIndex].classList.replace('active', 'prev');
+        uiSlides[currIndex].classList.replace('active', 'prev');
+
+        // Setup next (reset its position from prev if needed, wait basically we want it coming from right)
+        bgSlides[nextIndex].classList.remove('prev');
+        textSlides[nextIndex].classList.remove('prev');
+        pngSlides[nextIndex].classList.remove('prev');
+        uiSlides[nextIndex].classList.remove('prev');
+
+        // Force reflow for new classes
+        void bgSlides[nextIndex].offsetWidth;
+
+        // Make active
+        bgSlides[nextIndex].classList.add('active');
+        textSlides[nextIndex].classList.add('active');
+        pngSlides[nextIndex].classList.add('active');
+        uiSlides[nextIndex].classList.add('active');
+
+        const prevIndex = currIndex;
+        currIndex = nextIndex;
+
+        // Reset prev after animation finishes
+        setTimeout(() => {
+            bgSlides[prevIndex].classList.remove('prev');
+            textSlides[prevIndex].classList.remove('prev');
+            pngSlides[prevIndex].classList.remove('prev');
+            uiSlides[prevIndex].classList.remove('prev');
+            isAnimating = false;
+        }, 1800);
+    }
+
+    function bindControls() {
+        const nextBtns = document.querySelectorAll('.next-btn');
+        const prevBtns = document.querySelectorAll('.prev-btn');
+
+        nextBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const next = (currIndex + 1) % slidesData.length;
+                goToSlide(next);
+            });
+        });
+
+        prevBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const next = (currIndex - 1 + slidesData.length) % slidesData.length;
+                goToSlide(next);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', initSlider);
+
+</script>
+</body>
+</html>
