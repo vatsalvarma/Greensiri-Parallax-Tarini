@@ -142,8 +142,8 @@
             position: absolute;
             top: 40%;
             left: 50%;
-            transform: translate(150vw, -50%); /* Start far right */
-            width: 100%;
+            transform: translate(-150vw, -50%); /* Start far right */
+            width: 70%;
             text-align: center;
             transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1) 0.3s; /* Slow, delayed entry */
             opacity: 0;
@@ -154,7 +154,7 @@
         }
         /* When exiting, standard exit to the left but also slightly delayed */
         .text-slide.prev {
-            transform: translate(-150vw, -50%);
+            transform: translate(150vw, -50%);
             transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.6s, opacity 1.2s 0.6s;
             opacity: 0;
         }
@@ -273,10 +273,10 @@
         /* Glassmorphism Right Cards */
         .right-panel {
             position: absolute;
-            top: 50%;
+            top: 60%;
             right: 60px;
             transform: translateY(-50%) translateX(100vw);
-            width: 400px;
+            width: 360px;
             transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1) 0.2s;
             opacity: 0;
         }
@@ -370,7 +370,7 @@
 <script>
     const slidesData = [
         {
-            bg: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/bagcapsule.png",
+            bg: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-Parallax-Tarini/refs/heads/main/capsule%20bg.png",
             png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/image%202.png",
             heroText1: "CAPSULE",
             heroText2: "STAY",
@@ -384,7 +384,7 @@
             ]
         },
         {
-            bg: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/dome1bg.png",
+            bg: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-Parallax-Tarini/refs/heads/main/domestay%20bg.png",
             png: "https://raw.githubusercontent.com/vatsalvarma/Greensiri-landingpage/refs/heads/main/dpnnn.png",
             heroText1: "DOME",
             heroText2: "STAY",
